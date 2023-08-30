@@ -1,6 +1,19 @@
 # File to save the name of active user
 $file = '<Common used path>\TPS.txt'
 
+# IP address of TPS (when behind a firewall, IP address of firewall)
+$ipaddress = '<IP of TPS>'
+$port = '<Port of TPS>'
+
+# Username and password on TPS
+$tpsuser = '<User TPS>'
+$tpspassword ='<Password TPS>'
+
+# Domain for the users
+$domain = '<Domain>'
+
+### Don't make changes below this line ###
+
 # Name of active user
 $user = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 
@@ -10,7 +23,7 @@ if (test-path -Path $file)
 	$wshell = New-Object -ComObject Wscript.Shell 
 	$username = Get-Content $file
     # Replace domain and points in name
-    $username = $username.Replace("<Domain>\", "").Replace(".", " ") 
+    $username = $username.Replace("${domain}\", "").Replace(".", " ") 
     $TextInfo = (Get-Culture).TextInfo
     $username = $TextInfo.ToTitleCase($username)
 	$message = "User " + $username + " is already logged in"
@@ -20,7 +33,7 @@ if (test-path -Path $file)
 
 # Save username in text file
 echo $user > $file
-cmdkey /generic:TERMSRV/<IP of TPS> /user:<User TPS> /password:<Password TPS>
-start-process -FilePath "mstsc" -ArgumentList "/v:<IP of TPS>:3390" -Wait -WindowStyle Maximized
-cmdkey /delete:TERMSRV/<IP of TPS>
+cmdkey /generic:TERMSRV/$ipaddress /user:$tpsuser /password:$tpspassword
+start-process -FilePath "mstsc" -ArgumentList "/v:${ipaddress}:${port}" -Wait -WindowStyle Maximized
+cmdkey /delete:TERMSRV/$ipaddress
 remove-item $file
